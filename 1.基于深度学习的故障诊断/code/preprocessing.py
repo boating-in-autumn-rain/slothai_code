@@ -1,18 +1,20 @@
-# github：https://github.com/boating-in-autumn-rain?tab=repositories
-# 微信公众号：秋雨行舟
-# B站：秋雨行舟
-# 抖音：秋雨行舟
-# 咨询微信：slothalone
-
-
 from scipy.io import loadmat
 import numpy as np
 import os
 from sklearn import preprocessing
 from sklearn.model_selection import StratifiedShuffleSplit
 
+'''
+github：https://github.com/boating-in-autumn-rain?tab=repositories
+网址：www.slothai.cn
+微信公众号：秋雨行舟
+B站：秋雨行舟
+抖音：秋雨行舟
+咨询微信：slothalone
+'''
+
 # 数据预处理代码
-def prepro(d_path, length, number, normal, rate):
+def prepro(d_path, length, number, normal, rate, stride):
 
     # 获得该文件夹下所有.mat文件名
     filenames = os.listdir(d_path)
@@ -42,12 +44,12 @@ def prepro(d_path, length, number, normal, rate):
             Test_Sample = []
 
             for j in range(samp_train):
-                sample = slice_data[j*150: j*150 + length]
+                sample = slice_data[j*stride: j*stride + length]
                 Train_sample.append(sample)
 
             # 抓取测试数据
             for h in range(number - samp_train):
-                sample = slice_data[samp_train*150 + length + h*150: samp_train*150 + length + h*150 + length]
+                sample = slice_data[samp_train*stride + length + h*stride: samp_train*stride + length + h*stride + length]
                 Test_Sample.append(sample)
             Train_Samples[i] = Train_sample
             Test_Samples[i] = Test_Sample
