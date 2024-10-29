@@ -1,61 +1,22 @@
-# github：https://github.com/boating-in-autumn-rain?tab=repositories
-# 微信公众号：秋雨行舟
-# B站：秋雨行舟
-# 抖音：秋雨行舟
-# 咨询微信：slothalone
-
-from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import random
 import tensorflow.keras as keras
 import tensorflow.keras.layers as layers
 import numpy as np
 import tensorflow as tf
-from sklearn.manifold import TSNE
 import preprocessing
 from sklearn.metrics import classification_report
 import warnings
 warnings .filterwarnings("ignore")
 
-#如果是GPU，需要去掉注释，如果是CPU，则注释
-# gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
-# assert len(gpu) == 1
-# tf.config.experimental.set_memory_growth(gpu[0], True)
-
-# 保存最佳模型自定义类
-class CustomModelCheckpoint(keras.callbacks.Callback):
-    def __init__(self, model, path):
-        self.model = model
-        self.path = path
-        self.best_loss = np.inf
-
-    def on_epoch_end(self, epoch, logs=None):
-        val_loss = logs['val_loss']
-        if val_loss < self.best_loss:
-            print("\nValidation loss decreased from {} to {}, saving model".format(self.best_loss, val_loss))
-            self.model.save_weights(self.path, overwrite=True)
-            self.best_loss = val_loss
-
-# t-sne初始可视化函数
-def start_tsne(x_train):
-    print("正在进行初始输入数据的可视化...")
-    x_train1 = tf.reshape(x_train, (len(x_train), 784))
-    X_tsne = TSNE().fit_transform(x_train1)
-    plt.figure(figsize=(10, 10))
-    plt.scatter(X_tsne[:, 0], X_tsne[:, 1], c=y_train)
-    plt.colorbar()
-    plt.show()
-
-# t-sne结束可视化函数
-def end_tsne(x_test):
-    model.load_weights(filepath='../model/1DCNN.h5')
-    hidden_features = model.predict(x_test)
-    X_tsne = TSNE().fit_transform(hidden_features)
-    plt.figure(figsize=(10, 10))
-    plt.scatter(X_tsne[:, 0], X_tsne[:, 1], c=y_test)
-    plt.colorbar()
-    plt.show()
-
+'''
+github：https://github.com/boating-in-autumn-rain?tab=repositories
+网址：www.slothai.cn
+微信公众号：秋雨行舟
+B站：秋雨行舟
+抖音：秋雨行舟
+咨询微信：slothalone
+'''
 
 # 模型定义
 def mymodel(x_train):
@@ -105,26 +66,6 @@ def acc_line():
     plt.legend(["Loss", "Validation Loss"])
     plt.show()
 
-
-# 绘制混淆矩阵
-def confusion(x_test, y_test):
-    y_pred_gailv = model.predict(x_test, verbose=1)
-    y_pred_int = np.argmax(y_pred_gailv, axis=1)
-    con_mat = confusion_matrix(y_test.astype(str), y_pred_int.astype(str))
-    print(con_mat)
-    classes = list(set(y_train))
-    classes.sort()
-    plt.imshow(con_mat, cmap=plt.cm.Blues)
-    indices = range(len(con_mat))
-    plt.xticks(indices, classes)
-    plt.yticks(indices, classes)
-    plt.colorbar()
-    plt.xlabel('guess')
-    plt.ylabel('true')
-    for first_index in range(len(con_mat)):
-        for second_index in range(len(con_mat[first_index])):
-            plt.text(first_index, second_index, con_mat[second_index][first_index], va='center', ha='center')
-    plt.show()
 
 
 # 对输入到模型中的数据进一步处理
@@ -181,16 +122,6 @@ if __name__ == '__main__':
     # 获取数据
     x_train, y_train, x_valid, y_valid, x_test, y_test = data_pre()
 
-    print("x_train.shape: ", x_train.shape)
-    print("y_train.shape: ", y_train.shape)
-    print("x_valid.shape: ", x_valid.shape)
-    print("y_valid.shape: ", y_valid.shape)
-    print("x_test.shape: ", x_test.shape)
-    print("y_test.shape: ", y_test.shape)
-
-    # t-sne初始可视化
-    start_tsne(x_train)
-
     # 获取定义模型
     model = mymodel(x_train)
 
@@ -206,15 +137,7 @@ if __name__ == '__main__':
     # 模型训练
     history = model.fit(x_train, y_train,
                         batch_size=128, epochs=200, verbose=1,
-                        validation_data=(x_valid, y_valid),
-                        callbacks=[CustomModelCheckpoint(
-      model, r'../model/1DCNN.h5')])
-
-    # 加载模型
-    model.load_weights(filepath='../model/1DCNN.h5')
-
-    # 编译模型
-    model.compile(loss='sparse_categorical_crossentropy', optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
+                        validation_data=(x_valid, y_valid))
 
     # 评估模型
     scores = model.evaluate(x_test, y_test, verbose=1)
@@ -231,11 +154,3 @@ if __name__ == '__main__':
     # 绘制acc和loss曲线
     print("绘制acc和loss曲线")
     acc_line()
-
-    # 训练结束的t-sne降维可视化
-    print("训练结束的t-sne降维可视化")
-    end_tsne(x_test)
-
-    # 绘制混淆矩阵
-    print("绘制混淆矩阵")
-    confusion(x_test, y_test)
